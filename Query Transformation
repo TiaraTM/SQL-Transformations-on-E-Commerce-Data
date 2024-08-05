@@ -1,0 +1,18 @@
+--upload sheet 'raw_data' first to table in bigquery using name youvit_raw
+select 
+  RANK() OVER(ORDER BY created_at asc ) unique_id,
+  JSON_EXTRACT_SCALAR(address_billing, "$.customer_first_name") AS customer_first_name,
+  JSON_EXTRACT_SCALAR(address_billing, "$.customer_last_name") AS customer_last_name,
+  regexp_replace(JSON_EXTRACT_SCALAR(address_billing, "$.phone") , '^[0|\\+62|]', '62') AS phone_number,
+  JSON_EXTRACT_SCALAR(address_billing, "$.country") AS country,
+  JSON_EXTRACT_SCALAR(address_billing, "$.city") AS city,
+  concat(
+    JSON_EXTRACT_SCALAR(address_billing, "$.address1") ,', ',
+    JSON_EXTRACT_SCALAR(address_billing, "$.address2") ,', ',
+    JSON_EXTRACT_SCALAR(address_billing, "$.address3") ,', ',
+    JSON_EXTRACT_SCALAR(address_billing, "$.address4") ,', ',
+    JSON_EXTRACT_SCALAR(address_billing, "$.address5") 
+  )
+  AS address
+from `tia-dwh.Youvit.youvit_raw`
+order by unique_id
